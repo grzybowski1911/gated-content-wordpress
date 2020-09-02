@@ -20,6 +20,10 @@ if ( ! defined('WPINC')) {
     die;
 }
 
+// constant for url path of plugin 
+
+define ('WPPLUGIN_URL', plugin_dir_url(__FILE__));
+
 function gated_content_menu_settings() {
 
     //examples of other functions that will place menu items in different locations in the dashboard menu
@@ -70,6 +74,7 @@ function sub_page_markup() {
         <h1><?php esc_html_e( get_admin_page_title()); ?></h1>
     </div>
     <?php
+    file_path_test();
 }
 
 // add link to the settings for plugin in plugins menu list
@@ -83,3 +88,22 @@ function gated_content_settings_link ( $links ) {
 
 $filter_name = "plugin_action_links_" . plugin_basename(__FILE__);
 add_filter($filter_name, 'gated_content_settings_link');
+
+// accessing file paths 
+
+$gated_plugin_basename = plugin_basename(__FILE__);
+$gated_plugin_dir_path = plugin_dir_path(__FILE__);
+$gated_plugins_url_default = plugins_url();
+$gated_plugins_url_inc = plugins_url('includes', __FILE__);
+$gated_plugin_dir_url = plugin_dir_url(__FILE__);
+
+function file_path_test() {
+    ?>
+    <div class="wrap">
+        <?php include(plugin_dir_path(__FILE__).'includes/test.php')  ?>
+    </div>
+    <?php
+}
+
+// Enqueuing files 
+
