@@ -100,10 +100,41 @@ $gated_plugin_dir_url = plugin_dir_url(__FILE__);
 function file_path_test() {
     ?>
     <div class="wrap">
-        <?php include(plugin_dir_path(__FILE__).'includes/test.php')  ?>
+        <?php include($gated_plugin_dir_path .'includes/test.php')  ?>
     </div>
     <?php
 }
 
-// Enqueuing files 
+// Enqueuing css files 
+// move enqueues to include folder and call files - CLEAN UP
+// conditional based on URL 
 
+function gated_admin_styles( $hook ) {
+    wp_register_style('gated-admin-style', WPPLUGIN_URL . 'admin/css/admin.css', [] );
+
+    var_dump($hook);
+    
+    if ('toplevel_page_gated_plugin_home' == $hook ) {
+        wp_enqueue_style('gated-admin-style'); 
+    }
+}
+
+add_action('admin_enqueue_scripts', 'gated_admin_styles');
+
+function gated_frontend_styles() {
+    wp_enqueue_style('gated-frontend-style', WPPLUGIN_URL . 'frontend/css/style.css', [] );
+}
+
+add_action('wp_enqueue_scripts', 'gated_frontend_styles');
+
+function gated_admin_js() {
+    wp_enqueue_script('gated_admin_js', WPPLUGIN_URL . 'admin/js/admin.js', []);
+}
+
+add_action('admin_enqueue_scripts', 'gated_admin_js');
+
+function gated_front_js() {
+    wp_enqueue_script('gated_front_js', WPPLUGIN_URL . 'frontend/js/front.js');
+}
+
+add_action('wp_enqueue_scripts', 'gated_front_js');
