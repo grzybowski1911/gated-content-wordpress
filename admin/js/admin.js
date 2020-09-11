@@ -1,1 +1,1 @@
-console.log('admin');
+console.log('where you from you sexy thang - admin.js');

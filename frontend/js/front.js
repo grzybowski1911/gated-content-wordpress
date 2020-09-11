@@ -1,1 +1,1 @@
-console.log('do you believe in miracles');
+console.log('do you believe in miracles - front.js');

@@ -19,7 +19,6 @@
 if ( ! defined('WPINC')) {
     die;
 }
-
 // constant for url path of plugin 
 
 define ('WPPLUGIN_URL', plugin_dir_url(__FILE__));
@@ -46,7 +45,7 @@ function gated_content_menu_settings() {
         __('Gated Content Sub Page', 'gated_plugin'),
         __('Sub Page', 'gated_plugin'),
         'manage_options',
-        'gated_content_sub_page',
+        'gated_plugin_sub_page',
         'sub_page_markup'
     );
 }
@@ -54,16 +53,91 @@ function gated_content_menu_settings() {
 //hook to add item to admin menu
 add_action('admin_menu', 'gated_content_menu_settings');
 
+// Settings fields 
+
+function gated_plugin_settings() {
+    // if no settings then create them 
+    if(!get_option('gated_plugin_option')) {
+        add_option('gated_plugin_option');
+    }
+    //adding settings field
+    add_settings_field(
+        'gated_plugin_custom_text',
+        __('Custom Text', 'gated_plugin'),
+        'gated_plugin_custom_text_callback',
+        'gated_plugin_home',
+        'gated_plugin_section'
+    );
+    // register setting
+    register_setting(
+        'gated_plugin_section',
+        'gated_plugin_section'
+    );
+    // add the setting section
+    add_settings_section(
+        'gated_plugin_section',
+        __('The First Option','gated_plugin'),
+        'gated_plugin_setting_callback',
+        'gated_plugin_home'
+    );
+}
+
+add_action('admin_init', 'gated_plugin_settings');
+
+function gated_plugin_custom_text_callback() {
+
+    $option = get_option('gated_plugin_option');
+    $custom_text = '';
+    if (isset($option['gated_plugin_option'])){
+        $custom_text = esc_html($option['gated_plugin_option']);
+    };
+
+    echo '<input type="text" id="gated_plugin_custom_text" name="gated_plugin_[custom_text]" value="'. $custom_text . '">';
+}
+
+function gated_plugin_setting_callback() {
+    esc_html_e('Things and Stuff', 'gated_plugin');
+}
+
+// add to the DB 
+
+function gated_plugin_options() {
+
+    $options = [];
+    $options['name'] = 'Ben';
+    $options['location'] = 'Portland, OR';
+    $options['job'] = 'The Boss';
+
+    add_option('gated_plugin_option', 'Gated Plugin Options');
+    //update_option('gated_plugin_option', 'fucl');
+
+    //$new_thing = 'the end of the world';
+    //add_option('gated_plugin_option_2', 'Gated Plugin Options 2');
+    //update_option('gated_plugin_option_2', $new_thing);
+}
+
+add_action('admin_init', 'gated_plugin_options');
+
+// main settings page mark up 
+
 function gated_content_markup () {
     if ( !current_user_can ('manage_options')) {
         return;
     }
+    //$options = get_option('gated_plugin_option');
     ?>
     <div class="wrap">
         <h1><?php esc_html_e( get_admin_page_title()); ?></h1>
+        <form method="posy" action="options.php">
+            <?php settings_fields('gated_plugin_settings'); ?>
+            <?php do_settings_sections('gated_plugin_home');?>
+            <?php submit_button(); ?>
+        </form> 
     </div>
     <?php
 }
+
+// sub page mark up
 
 function sub_page_markup() {
     if ( !current_user_can ('manage_options')) {
@@ -74,7 +148,6 @@ function sub_page_markup() {
         <h1><?php esc_html_e( get_admin_page_title()); ?></h1>
     </div>
     <?php
-    file_path_test();
 }
 
 // add link to the settings for plugin in plugins menu list
@@ -97,44 +170,19 @@ $gated_plugins_url_default = plugins_url();
 $gated_plugins_url_inc = plugins_url('includes', __FILE__);
 $gated_plugin_dir_url = plugin_dir_url(__FILE__);
 
-function file_path_test() {
-    ?>
-    <div class="wrap">
-        <?php include($gated_plugin_dir_path .'includes/test.php')  ?>
-    </div>
-    <?php
+// include enqueue files
+
+include($gated_plugin_dir_path .'includes/styles.php');
+
+include($gated_plugin_dir_path .'includes/scripts.php');
+
+// footer admin page for shits n gigs 
+
+function footer_change() {
+    $option_test = esc_html(get_option('gated_plugin_option_2'));
+    //echo '<p style="position:absolute;bottom:0;">'. $option_test .'</p>';
+    return $option_test;
 }
 
-// Enqueuing css files 
-// move enqueues to include folder and call files - CLEAN UP
-// conditional based on URL 
+add_filter('admin_footer_text', 'footer_change');
 
-function gated_admin_styles( $hook ) {
-    wp_register_style('gated-admin-style', WPPLUGIN_URL . 'admin/css/admin.css', [] );
-
-    var_dump($hook);
-    
-    if ('toplevel_page_gated_plugin_home' == $hook ) {
-        wp_enqueue_style('gated-admin-style'); 
-    }
-}
-
-add_action('admin_enqueue_scripts', 'gated_admin_styles');
-
-function gated_frontend_styles() {
-    wp_enqueue_style('gated-frontend-style', WPPLUGIN_URL . 'frontend/css/style.css', [] );
-}
-
-add_action('wp_enqueue_scripts', 'gated_frontend_styles');
-
-function gated_admin_js() {
-    wp_enqueue_script('gated_admin_js', WPPLUGIN_URL . 'admin/js/admin.js', []);
-}
-
-add_action('admin_enqueue_scripts', 'gated_admin_js');
-
-function gated_front_js() {
-    wp_enqueue_script('gated_front_js', WPPLUGIN_URL . 'frontend/js/front.js');
-}
-
-add_action('wp_enqueue_scripts', 'gated_front_js');
