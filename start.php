@@ -88,7 +88,7 @@ function gated_plugin_custom_text_callback() {
 
     $option = get_option('gated_plugin_option');
     $custom_text = '';
-    if (isset($option['gated_plugin_option'])){
+    if (isset($option)){
         $custom_text = esc_html($option['gated_plugin_option']);
     };
 
